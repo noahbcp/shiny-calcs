@@ -37,16 +37,11 @@ server <- function(input, output, session) {
         mainPanel(width = 12,
         fluidRow(
             in.block.100px(
-                textInput(inputId = 'c1', label = '', placeholder = 'Conc. 1', width = '75px', value = rea.value()(1))
-            ),
-            in.block.100px(
-                textInput(inputId = 'v1', label = '', placeholder = 'Vol. 1', width = '75px', value = rea.value()(2))
-            ),
-            in.block.100px(
-                textInput(inputId = 'c2', label = '', placeholder = 'Conc. 2', width = '75px', value = rea.value()(3))
-            ),
-            in.block.100px(
+                textInput(inputId = 'c1', label = '', placeholder = 'Conc. 1', width = '75px', value = rea.value()(1)),
+                textInput(inputId = 'v1', label = '', placeholder = 'Vol. 1', width = '75px', value = rea.value()(2)),
+                textInput(inputId = 'c2', label = '', placeholder = 'Conc. 2', width = '75px', value = rea.value()(3)),
                 textInput(inputId = 'v2', label = '', placeholder = 'Vol. 2', width = '75px', value = rea.value()(4))
+                )
             )
         ),
         div(),
