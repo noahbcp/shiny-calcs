@@ -9,41 +9,65 @@ ui <- fluidPage(
     titlePanel(
         'Dilution Calculator'
     ),
-    mainPanel(width = 12,
-    ## Number inputs
+    uiOutput('calc.ui')
+)
+
+server <- function(input, output, session) {
+    rea.value <- reactive({
+        function(pos){
+            .inputvalues <- list(input$c1, input$v1, input$c2, input$v2)
+            .nullinputvalues <- sapply(sapply(.inputvalues, is.null), as.integer)
+            if (sum(.nullinputvalues) == 1) {
+                .outputvalues <- list(output$c1a, output$v1a, output$c2a, output$v2a)
+                value <- .outputvalues[pos]
+                value <- as.character(value)
+                value
+            } else {
+                if (sum(.nullinputvalues) < 4) {
+                    value <- .inputvalues[pos]
+                    value <- as.character(value)
+                    value
+                }
+            }
+        }
+    })
+    
+    ## Reactive UI block
+    output$calc.ui <- renderUI({
+        mainPanel(width = 12,
         fluidRow(
-        in.block.100px(
-            textInput(inputId = 'c1', label = '', placeholder = 'Conc. 1', width = '75px')
+            in.block.100px(
+                textInput(inputId = 'c1', label = '', placeholder = 'Conc. 1', width = '75px', value = rea.value()(1))
             ),
-        in.block.100px(
-            textInput(inputId = 'v1', label = '', placeholder = 'Vol. 1', width = '75px')
+            in.block.100px(
+                textInput(inputId = 'v1', label = '', placeholder = 'Vol. 1', width = '75px', value = rea.value()(2))
             ),
-        in.block.100px(
-            textInput(inputId = 'c2', label = '', placeholder = 'Conc. 2', width = '75px')
+            in.block.100px(
+                textInput(inputId = 'c2', label = '', placeholder = 'Conc. 2', width = '75px', value = rea.value()(3))
             ),
-        in.block.100px(
-            textInput(inputId = 'v2', label = '', placeholder = 'Vol. 2', width = '75px')
+            in.block.100px(
+                textInput(inputId = 'v2', label = '', placeholder = 'Vol. 2', width = '75px', value = rea.value()(4))
             )
         ),
         div(),
         fluidRow(
-        in.block.100px(
-            textOutput(outputId = 'c1a')
-        ),
-        in.block.100px(
-            textOutput(outputId = 'v1a')
-        ),
-        in.block.100px(
-            textOutput(outputId = 'c2a')
-        ),
-        in.block.100px(
-            textOutput(outputId = 'v2a')
+                in.block.100px(
+                    textOutput(outputId = 'c1a')
+                ),
+                in.block.100px(
+                    textOutput(outputId = 'v1a')
+                ),
+                in.block.100px(
+                    textOutput(outputId = 'c2a')
+                ),
+                in.block.100px(
+                    textOutput(outputId = 'v2a')
+                )
+            )
         )
-        )
-    )
-)
-
-server <- function(input, output, session) {
+    })
+    
+    ## Solve calc block
     calc.dilution <- reactive({
         function(a, b, c) {
             a <- as.numeric(a)
