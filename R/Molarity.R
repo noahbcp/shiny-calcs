@@ -1,92 +1,74 @@
 library(shiny)
+library(tableHTML)
 
-## Styles
-in.block.100px <- function(...) {
-    div(style="display: inline-block;vertical-align:top; width:100px ;", ...)
+## Define Input UI elements
+calc.input <- function(inputId, integer) {
+    .placeholdertext <- c('Concentration 1', 'Volume 1', 'Concentration 2', 'Volume 2')[integer]
+    div(style = 'margin: auto; width: 45%; padding: 0px',
+        textInput(inputId = as.character(inputId), placeholder = .placeholdertext, width = '100%', label = '')
+    )
 }
 
 ui <- fluidPage(
     titlePanel(
-        'Dilution Calculator'
+            title = 'Dilution Calculator', windowTitle = 'Dilution Calculator'
     ),
-    uiOutput('calc.ui')
+    div(style = 'margin: 10px; width: 360px; padding: 10px', 
+        sidebarLayout(
+            fluid = FALSE,
+            sidebarPanel(
+                tags$style(make_css(list('.well', 'padding', '0px'))),
+                width = 12,
+                calc.input('i1', 1),
+                calc.input('i2', 2),
+                div(style = 'text-align: center; font-size: 38px; font-weight: bold; padding: 0px;',
+                    "="
+                ),
+                calc.input('i3', 3),
+                calc.input('i4', 4),
+                div(style = 'text-align: center; padding: 15px',
+                    actionButton('reset', 'Reset')
+                ),
+            ),
+            mainPanel(
+                width = 0
+            )
+        )
+    )
 )
 
 server <- function(input, output, session) {
-    rea.value <- reactive({
-        function(pos){
-            .inputvalues <- list(input$c1, input$v1, input$c2, input$v2)
-            .nullinputvalues <- sapply(sapply(.inputvalues, is.null), as.integer)
-            if (sum(.nullinputvalues) == 1) {
-                .outputvalues <- list(output$c1a, output$v1a, output$c2a, output$v2a)
-                value <- .outputvalues[pos]
-                value <- as.character(value)
-                value
-            } else {
-                if (sum(.nullinputvalues) < 4) {
-                    value <- .inputvalues[pos]
-                    value <- as.character(value)
-                    value
-                }
+    observe({
+        inputs <- c(input$i1, input$i2, input$i3, input$i4)
+        if (sum(inputs == '') == 1) {
+            missing.int <- which(inputs == '')
+            if (missing.int == 1) {
+                solution <- signif(((as.numeric(input$i3) * as.numeric(input$i4)) / as.numeric(input$i2)), digits = 5)
             }
+            if (missing.int == 2) {
+                solution <- signif(((as.numeric(input$i3) * as.numeric(input$i4)) / as.numeric(input$i1)), digits = 5)
+            }
+            if (missing.int == 3) {
+                solution <- signif(((as.numeric(input$i1) * as.numeric(input$i2)) / as.numeric(input$i4)), digits = 5)
+            }
+            if (missing.int == 4) {
+                solution <- signif(((as.numeric(input$i1) * as.numeric(input$i2)) / as.numeric(input$i3)), digits = 5)
+            }
+            updateTextInput(
+                inputId = paste0('i', missing.int),
+                value = solution
+            )
         }
     })
-    
-    ## Reactive UI block
-    output$calc.ui <- renderUI({
-        mainPanel(width = 12,
-        fluidRow(
-            in.block.100px(
-                textInput(inputId = 'c1', label = '', placeholder = 'Conc. 1', width = '75px', value = rea.value()(1)),
-                textInput(inputId = 'v1', label = '', placeholder = 'Vol. 1', width = '75px', value = rea.value()(2)),
-                textInput(inputId = 'c2', label = '', placeholder = 'Conc. 2', width = '75px', value = rea.value()(3)),
-                textInput(inputId = 'v2', label = '', placeholder = 'Vol. 2', width = '75px', value = rea.value()(4))
-                )
+    observeEvent(input$reset, {
+        i <- 1
+        while (i <= 4) {
+            updateTextInput(
+                inputId = paste0('i', i),
+                value = ''
             )
-        ),
-        div(),
-        fluidRow(
-                in.block.100px(
-                    textOutput(outputId = 'c1a')
-                ),
-                in.block.100px(
-                    textOutput(outputId = 'v1a')
-                ),
-                in.block.100px(
-                    textOutput(outputId = 'c2a')
-                ),
-                in.block.100px(
-                    textOutput(outputId = 'v2a')
-                )
-            )
-        )
-    })
-    
-    ## Solve calc block
-    calc.dilution <- reactive({
-        function(a, b, c) {
-            a <- as.numeric(a)
-            b <- as.numeric(b)
-            c <- as.numeric(c)
-            x <- (a * b) / c
-            x
+            i <- i + 1
         }
-    })
-    output$c1a <- renderText({
-        answer <- as.character(calc.dilution()(input$v2, input$c2, input$v1))
-        answer
-    })
-    output$v1a <- renderText({
-        answer <- as.character(calc.dilution()(input$v2, input$c2, input$c1))
-        answer
-    })
-    output$c2a <- renderText({
-        answer <- as.character(calc.dilution()(input$v1, input$c1, input$v2))
-        answer
-    })
-    output$v2a <- renderText({
-        answer <- as.character(calc.dilution()(input$v1, input$c1, input$c2))
-        answer
     })
 }
 
