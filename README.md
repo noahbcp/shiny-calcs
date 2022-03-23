@@ -11,4 +11,4 @@ A simple `C1*V1 = C2*V2` calculator. Supports changing units.
 ## Serial Dilutions
 Generates protocols for serial dilutions. Fold dilution can be modified. Use 3.16 (default) for half-log dilutions.
 
-![image](https://user-images.githubusercontent.com/98575657/159625120-d6e4b870-ef9b-43f0-b18d-ecf18242b5ed.png)
+![image](https://user-images.githubusercontent.com/98575657/159625422-cfe540bc-32fe-4b39-8521-8679c2302484.png)
